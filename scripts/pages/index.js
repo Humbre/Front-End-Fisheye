@@ -12,11 +12,13 @@
                 this._portrait = portrait
             }
          
-            fetch(../../data/photographers.json).then(function(response)) {
+            fetch(../../../data/photographers.json)
+                .then(function getPhotographers()) {
                 // et bien retourner le tableau photographers seulement une fois récupéré
-                return ({photographers:[]});
-                
-            }
+                return ({photographers:[]});    
+                }.catch() {
+                    return ();    
+                }
 
             }
         }
