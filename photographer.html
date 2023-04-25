@@ -9,25 +9,41 @@
   </head>
   <body>
     <header>
-      <img src="assets/images/logo.png" class="logo" />
+      <img src="assets/images/logo.png" class="logo" alt="logo" />
     </header>
     <main id="main">
       <div class="photograph-header">
-        <button class="contact_button" onclick="displayModal()">Contactez-moi</button>
+        <div class="info" id="info"></div>
+        <button class="contact_button displayModal" onclick="displayModal()" aria-label="Contact">Contactez-moi</button>
+        <div class="img" id="imgPhotographer"></div>
+      </div>
+      <div class="portfolio" id="portfolio">
       </div>
     </main>
     <div id="contact_modal">
 			<div class="modal">
 				<header>
           <h2>Contactez-moi</h2>
-          <img src="assets/icons/close.svg" onclick="closeModal()" />
+          <img src="assets/icons/close.svg" class="close_button" onclick="closeModal()" alt="croix"/>
         </header>
 				<form>
 					<div>
 						<label>Prénom</label>
-						<input />
+						<input type="text" class="firstName"/>
 					</div>
-          <button class="contact_button">Envoyer</button>
+          <div>
+						<label>Nom</label>
+						<input type="text" class="lastName"/>
+					</div>
+          <div>
+						<label>Email</label>
+						<input type="email" class="email"/>
+					</div>
+          <div>
+					<label>Votre message</label>
+						<input type="text" class="message"/>
+					</div>
+          <button class="contact_button sendData" aria-label="close sendData">Envoyer</button>
 				</form>
 			</div>
 		</div>
