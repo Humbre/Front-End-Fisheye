@@ -1,3 +1,4 @@
+// Utilisation du factory pour afficher la page index.html
 class Photographer {
     constructor(name, id, city, country, tagline, price, portrait) {
       this._name = name;
