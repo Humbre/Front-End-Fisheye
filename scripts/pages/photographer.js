@@ -44,10 +44,10 @@ function displayElement(photographerId) {
   document.addEventListener('keydown', (event) => {
     const key = event.key;
     if (key === 'ArrowLeft') {
-        currentPictureIndex = (currentPictureIndex - 1 + pictures.length) % pictures.length; // calcule l'index de la photo précédente
+        currentPictureIndex = (currentPictureIndex - 1 + pictures.length); // calcule l'index de la photo précédente
         displayCurrentPicture(); // affiche la photo précédente
     } else if (key === 'ArrowRight') {
-        currentPictureIndex = (currentPictureIndex + 1) % pictures.length; // calcule l'index de la photo suivante
+        currentPictureIndex = (currentPictureIndex + 1) ; // calcule l'index de la photo suivante
         displayCurrentPicture(); // affiche la photo suivante
     }
   });
