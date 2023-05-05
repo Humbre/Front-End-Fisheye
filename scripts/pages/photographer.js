@@ -1,8 +1,11 @@
 // Récupération des éléments du DOM
-const titleElement = document.querySelector('title');
 const photographerNameElement = document.getElementById('info');
 const profilePictureElement = document.getElementById('imgPhotographer');
 const portfolioElement = document.querySelector('#portfolio');
+
+// Récupère les paramètres de l'URL dans une constante
+const params = new URLSearchParams(window.location.search);
+const photographerId = parseInt(params.get('id'));
 
 // Récupération des données du photographe via Fetch
 fetch('../../../data/photographers.json')
@@ -10,27 +13,50 @@ fetch('../../../data/photographers.json')
   .then(data => {
     // Récupération des données du photographe
     const photographer = data.photographers.find(p => p.id === photographerId);
+    
+    // Récupérer les médias du photographe depuis les données JSON
+    const media = data.media.filter(m => m.photographerId === photographerId);
+
 
     // Mise à jour du contenu du DOM
-    titleElement.textContent = photographer.name;
-    photographerNameElement.textContent = photographer.name + `, ${photographer.city}, ${photographer.country}`;
-    profilePictureElement.src = `assets/images/photographers/${photographer.portrait}`;
+    const h1 = document.createElement('h1');
+    h1.textContent = photographer.name;
+    const h2 = document.createElement('h2');
+    h2.textContent = ` ${photographer.city}, ${photographer.country}`;
+    const p = document.createElement('p');
+    p.textContent = `${photographer.tagline}`;
+    const photographerNameContainer = document.createElement('div');
+    photographerNameContainer.appendChild(h1);
+    photographerNameContainer.appendChild(h2);
+    photographerNameContainer.appendChild(p);
+    
+    photographerNameElement.appendChild(photographerNameContainer);
+    
+    profilePictureElement.src = `assets/images/Photographers ID Photos/${photographer.portrait}`;
     profilePictureElement.alt = photographer.alt;
+    const titlelikes = document.createElement('p');
+    titlelikes.textContent = `${media.title}, ${media.likes}`;
+    const legende = document.createElement('div');
+    legende.appendChild(titlelikes);
 
-    // Affichage des images du portfolio du photographe
-    photographer.portfolio.forEach(picture => {
-      const pictureElement = document.createElement('img');
-      pictureElement.src = `assets/images/${photographerId}/${picture.image}`;
-      pictureElement.alt = picture.alt;
-      portfolioElement.appendChild(pictureElement);
-    });
+    // Afficher les médias dans la div class "portfolio" dans le HTML
+    media.forEach(m => {
+        const container = document.createElement('div');
+        const mediaElement = m.image ? document.createElement('img') : document.createElement('video');
+  
+        mediaElement.src = `assets/images/${photographerId}/${m.image || m.video}`;
+        mediaElement.alt = m.title;
+        mediaElement.controls = true;
+  
+        container.appendChild(mediaElement);
+        portfolioElement.appendChild(container);
+      });
   })
   .catch(error => console.error(error));
 
 //Affichage photo actuelle
 let currentPictureIndex = 0;
 const pictures = ["picture1.jpg", "picture2.jpg", "picture3.jpg"];
-
 
 const displayCurrentPicture = () => {
   const currentPicture = pictures[currentPictureIndex]; // récupère la photo courante

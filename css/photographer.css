@@ -6,6 +6,7 @@
     background-color: #FAFAFA;
     height: 300px;
     margin: 0 100px;
+    display: flex;
 }
 
 .contact_button {
@@ -19,6 +20,7 @@
     background-color: #901C1C;
     border-radius: 5px;
     cursor: pointer;
+    margin: auto;
 }
 
 .modal {
@@ -78,4 +80,49 @@ form input {
 }
 .message{
     height:200px;
+}
+#imgPhotographer{
+    height: 200px;
+    width: 200px;
+    border-radius:50%;
+    object-fit: cover;
+    margin: auto;
+}
+
+.info{
+    margin:auto;
+}
+
+.info h1{
+    color: #D3573C;
+    font-family: 'DM Sans';
+    font-style: normal;
+    font-weight: 200;
+    font-size: 64px;
+}
+.info h2{
+    color:#901C1C;
+    font-family: 'DM Sans';
+    font-style: normal;
+    font-weight:200;
+    font-size: 24px;
+}
+.info p{
+    font-family: 'DM Sans';
+    font-style: normal;
+    font-weight: 200;
+    font-size: 18px;
+    color: #525252;
+}
+
+.portfolio{
+    display: flex; 
+    flex-wrap: wrap;
+    justify-content: center;  
+}
+.portfolio img, .portfolio video{
+    width: 350px;
+    height: 350px;
+    object-fit: cover;
+    margin:20px;
 }
