@@ -125,9 +125,10 @@ form input {
     height: 350px;
     object-fit: cover;
     margin:20px;
+    cursor: pointer;
 }
 /* Styles pour la lightbox */
-.lightbox {
+#lightbox {
     display: none;
     position: fixed;
     top: 0;
@@ -135,17 +136,19 @@ form input {
     height: 100%;
     width: 100%;
     background-color: rgba(0, 0, 0, 0.75);
-    z-index: 9999;
-  }
-  
-  .lightbox-img {
+    z-index: 5;
+}
+#lightbox img:active{
+    display: block;
+} 
+#lightbox img {
     display: block;
     margin: auto;
     max-height: 90%;
     max-width: 90%;
-  }
+}
   
-  .close-btn {
+.close-btn {
     display: block;
     position: absolute;
     top: 1rem;
@@ -156,7 +159,39 @@ form input {
     background-color: transparent;
     border: none;
     font-size: 2rem;
-    color: white;
+    color: #901C1C;
     cursor: pointer;
-  }
-  
+}
+.lightbox-prev{
+    display: block;
+    position: absolute;
+    color:#901C1C;
+    right: 20px;
+    top:40%;
+    font-size: 2rem;
+    background-color: transparent;
+    cursor: pointer;
+    width: 3rem;
+    height: 3rem;
+}
+.lightbox-next{
+    display: block;
+    position: absolute;
+    color:#901C1C;
+    left: 20px;
+    top:40%;
+    font-size: 2rem;
+    background-color: transparent;
+    cursor: pointer;
+    width: 3rem;
+    height: 3rem;
+}
+.caption{
+    display: flex;
+    justify-content: space-around;
+    color:#901C1C;
+}
+
+.caption div:nth-child(2):after{
+    content : "\002661";
+}
