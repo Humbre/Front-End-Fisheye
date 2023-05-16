@@ -27,7 +27,10 @@
     border-radius: 5px;
     background-color: #DB8876;
     width: 50%;
-    display: flex;
+    position: absolute;
+    top:500px;
+    left:25%;
+    z-index: 999;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
@@ -153,8 +156,8 @@ form input {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    width: 3rem;
-    height: 3rem;
+    width: 6rem;
+    height: 6rem;
     padding: 0;
     background-color: transparent;
     border: none;
@@ -162,7 +165,7 @@ form input {
     color: #901C1C;
     cursor: pointer;
 }
-.lightbox-prev{
+.lightbox-next{
     display: block;
     position: absolute;
     color:#901C1C;
@@ -174,7 +177,7 @@ form input {
     width: 3rem;
     height: 3rem;
 }
-.lightbox-next{
+.lightbox-prev{
     display: block;
     position: absolute;
     color:#901C1C;
