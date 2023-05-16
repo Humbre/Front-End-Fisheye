@@ -1,169 +1,185 @@
- // Récupération des éléments du DOM
+// Fonction pour créer un élément HTML avec des attributs et des classes
+function createElement(tag, attributes = {}, classes = []) {
+    const element = document.createElement(tag);
+    for (const attr in attributes) {
+      element.setAttribute(attr, attributes[attr]);
+    }
+    element.classList.add(...classes);
+    return element;
+  }
+  
+  // Classe représentant le modèle de médias
+  class MediaModel {
+    constructor(photographerId, data) {
+      this.photographerId = photographerId;
+      this.media = data.media.filter(m => m.photographerId === photographerId);
+      this.currentMediaIndex = 0;
+      this.lightbox = createElement('div', { id: 'lightbox' }, ['lightbox']);
+      document.body.appendChild(this.lightbox);
+      this.lightboxContent = createElement('div', { id: 'lightboxContent' });
+      this.lightboxCaption = createElement('div', { id: 'lightboxCaption' });
+      this.prevButton = createElement('button', { id: 'prevButton' }, ['lightbox-prev']);
+      this.prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+      this.nextButton = createElement('button', { id: 'nextButton' }, ['lightbox-next']);
+      this.nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+      this.lightbox.appendChild(this.lightboxContent);
+      this.lightboxContent.appendChild(this.lightboxCaption);
+      this.lightboxContent.appendChild(this.prevButton);
+      this.lightboxContent.appendChild(this.nextButton);
+      this.closeButton = createElement('span', {}, ['close-btn']);
+      this.closeButton.innerHTML = '&times;';
+      this.lightbox.appendChild(this.closeButton);
+      this.closeButton.addEventListener('click', this.hideLightbox.bind(this));
+      this.prevButton.addEventListener('click', this.previousImage.bind(this));
+      this.nextButton.addEventListener('click', this.nextImage.bind(this));
+  
+      document.addEventListener('keydown', this.handleKeyboardEvents.bind(this));
+    }
+  
+    // Getter pour récupérer le média actuel
+    get currentMedia() {
+      return this.media[this.currentMediaIndex];
+    }
+  
+    // Fonction pour afficher la lightbox avec le média actuel
+    showLightbox() {
+      const currentMedia = this.currentMedia;
+      const lightboxContent = currentMedia.image ? createElement('img') : createElement('video');
+      lightboxContent.src = `assets/images/${this.photographerId}/${currentMedia.image || currentMedia.video}`;
+      lightboxContent.alt = currentMedia.title;
+      lightboxContent.controls = true;
+      this.lightboxCaption.innerHTML = '';
+      this.lightboxCaption.appendChild(createElement('div', {}, [], currentMedia.title));
+      this.lightboxCaption.appendChild(createElement('div', {}, ['heart-icon'], '&#x2764;'));
+      this.lightboxContent.innerHTML = '';
+      this.lightboxContent.appendChild(lightboxContent);
+      this.lightbox.style.display = 'flex';
+    }
+  
+    // Fonction pour passer à l'image précédente
+    previousImage() {
+      this.currentMediaIndex = (this.currentMediaIndex + this.media.length - 1) % this.media.length;
+      this.showLightbox();
+    }
+  
+    // Fonction pour passer à l'image suivante
+    nextImage() {
+      this.currentMediaIndex = (this.currentMediaIndex + 1) % this.media.length;
+      this.showLightbox();
+    }
+  
+    // Fonction pour fermer la lightbox
+    hideLightbox() {
+      this.lightbox.style.display = 'none';
+    }
+  
+    // Gestion des événements du clavier
+    handleKeyboardEvents(event) {
+      switch (event.key) {
+        case 'Escape': // Touche "Escape" pour fermer la lightbox
+          this.hideLightbox();
+          break;
+        case 'ArrowLeft': // Touche "Flèche gauche" pour passer à l'image précédente
+        this.previousImage();
+        break;
+    case 'ArrowRight': // Touche "Flèche droite" pour passer à l'image suivante
+        this.nextImage();
+        break;
+        }
+    }
+}
+  // Récupération des paramètres de l'URL
+  const params = new URLSearchParams(window.location.search);
+  const photographerId = parseInt(params.get('id'));
+  
+  // Fonction pour créer un élément "like" avec un comportement cliquable
+  function createLikeElement(media) {
+    const likeElement = createElement('span', {
+    'data-like-id': media.id,
+    'data-like': media.likes,
+    'data-liked': 'false'
+    }, ['like']);
+    
+    likeElement.addEventListener('click', function () {
+    if (this.dataset.liked === 'false') {
+    media.likes++;
+    this.dataset.liked = 'true';
+    } else {
+    media.likes--;
+    this.dataset.liked = 'false';
+    }
+    });
+    
+    return likeElement;
+    }
+    
+    // Récupération des données du photographe via Fetch
+    fetch('../../../data/photographers.json')
+    .then(response => response.json())
+    .then(data => {
+    const photographer = data.photographers.find(p => p.id === photographerId);
+    const mediaModel = new MediaModel(photographerId, data);
+    const portfolioElement = document.querySelector('#portfolio');
+
+// Mise à jour des informations du photographe
 const titleElement = document.querySelector('title');
 const photographerNameElement = document.getElementById('info');
 const profilePictureElement = document.getElementById('imgPhotographer');
-const portfolioElement = document.querySelector('#portfolio');
+titleElement.textContent = photographer.name;
+photographerNameElement.textContent = `${photographer.name}, ${photographer.city}, ${photographer.country}`;
+profilePictureElement.src = `assets/images/Photographers ID Photos/${photographer.portrait}`;
+profilePictureElement.alt = photographer.alt;
 
-// Récupère les paramètres de l'URL dans une constante
-const params = new URLSearchParams(window.location.search);
-const photographerId = parseInt(params.get('id'));
+// Création du sélecteur de tri
+const sortSelect = document.getElementById('sortSelect');
+sortSelect.addEventListener('change', function () {
+  const selectedIndex = parseInt(this.value);
+  // Effectuer le tri en fonction de l'option sélectionnée
+  if (selectedIndex === 0) {
+    mediaModel.media.sort((a, b) => b.likes - a.likes);
+  } else if (selectedIndex === 1) {
+    mediaModel.media.sort((a, b) => new Date(b.date) - new Date(a.date));
+  } else if (selectedIndex === 2) {
+    mediaModel.media.sort((a, b) => a.title.localeCompare(b.title));
+  }
+  // Mettre à jour les médias dans la galerie
+  updateMediaGallery();
+});
 
-// Récupération des données du photographe via Fetch
-fetch('../../../data/photographers.json')
-  .then(response => response.json())
-  .then(data => {
-    // Récupération des données du photographe
-    const photographer = data.photographers.find(p => p.id === photographerId);
 
-    // Récupérer les médias du photographe depuis les données JSON
-    const media = data.media.filter(m => m.photographerId === photographerId);
-
-    // Mise à jour du contenu du DOM
-    titleElement.textContent = photographer.name;
-    photographerNameElement.textContent = `${photographer.name}, ${photographer.city}, ${photographer.country}`;
-    profilePictureElement.src = `assets/images/Photographers ID Photos/${photographer.portrait}`;
-    profilePictureElement.alt = photographer.alt;
-
-    // Créer la lightbox
-    const lightbox = document.createElement('div');
-    lightbox.id = 'lightbox';
-    document.body.appendChild(lightbox);
-
-    // Créer la légende de la lightbox
-    const lightboxCaption = document.createElement('div');
-    lightboxCaption.id = 'lightboxCaption';
-    lightbox.appendChild(lightboxCaption);
-
-    // Créer les boutons pour naviguer entre les médias
-    const prevButton = document.createElement('button');
-    prevButton.id = 'prevButton';
-    prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
-    const nextButton = document.createElement('button');
-    nextButton.id = 'nextButton';
-    nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
-    lightbox.appendChild(prevButton);
-    lightbox.appendChild(nextButton);
-
-    let currentMediaIndex = 0;
-
-    // Fonction pour afficher la lightbox avec le média actuel
-    function showLightbox() {
-    const currentMedia = media[currentMediaIndex];
-    const lightboxContent = currentMedia.image ? document.createElement('img') : document.createElement('video');
-    lightboxContent.src = `assets/images/${photographerId}/${currentMedia.image || currentMedia.video}`;
-    lightboxContent.alt = currentMedia.title;
-    lightboxContent.controls = true;
-  
-    // Créer le bouton de fermeture
-    const closeButton = document.createElement('span');
-    closeButton.classList.add('close-btn');
-    closeButton.innerHTML = '&times;';
-
-    // Créer les flèches de navigation
-    const prevButton = document.createElement('div');
-    prevButton.classList.add('lightbox-prev');
-    prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
-
-    const nextButton = document.createElement('div');
-    nextButton.classList.add('lightbox-next');
-    nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
-    
-    function showPreviousMedia() {
-        currentMediaIndex = (currentMediaIndex - 1 + media.length) % media.length;
-        updateLightbox(currentMediaIndex);
-    }
-      
-    function showNextMedia() {
-        currentMediaIndex = (currentMediaIndex + 1) % media.length;
-        updateLightbox(currentMediaIndex);
-    }
-    
-    // Ajouter les événements de clic pour naviguer entre les photos
-    prevButton.addEventListener('click', showPreviousMedia);
-    nextButton.addEventListener('click', showNextMedia);
-
-    // Ajouter les événements de clic pour naviguer entre les photos
-    prevButton.addEventListener('click', showPreviousMedia);
-    nextButton.addEventListener('click', showNextMedia);
-
-    // Afficher la lightbox avec le contenu média, la légende et les flèches de navigation
-    lightbox.innerHTML = '';
-    lightbox.appendChild(closeButton);
-    lightbox.appendChild(lightboxContent);
-    lightbox.appendChild(prevButton);
-    lightbox.appendChild(nextButton);
-    lightbox.classList.add('active');
-        
-    // Fonction pour fermer la lightbox
-    function hideLightbox() {
-        lightbox.style.display = 'none';
-    }
-    // Ajouter l'événement onclick pour fermer la lightbox
-    closeButton.onclick = hideLightbox;
-    
-    // Mettre à jour la légende
-    lightboxCaption.textContent = currentMedia.title;
-    
-    // Supprimer la propriété display:none de la lightbox
-    lightbox.style.display = 'block';
-    }
-  
-    // Afficher les médias dans la div class "portfolio" dans le HTML
-    media.forEach((m, index) => {
-    const container = document.createElement('div');
-    const mediaElement = m.image ? document.createElement('img') : document.createElement('video');
-      
-    mediaElement.src = `assets/images/${photographerId}/${m.image || m.video}`;
-    mediaElement.alt = m.title;
+// Fonction pour mettre à jour les médias dans la galerie
+function updateMediaGallery() {
+  portfolioElement.innerHTML = ''; // Vider la galerie actuelle
+  mediaModel.media.forEach((media, index) => {
+    const container = createElement('div');
+    const mediaElement = media.image ? createElement('img') : createElement('video');
+    mediaElement.src = `assets/images/${photographerId}/${media.image || media.video}`;
+    mediaElement.alt = media.title;
     mediaElement.controls = true;
-      
-    // Créer un élément de légende pour le nom et les likes
-    const caption = document.createElement('div');
-    caption.classList.add('caption');
-    caption.innerHTML = '<div>' + m.title + '</div>' + '<div>' + m.likes + ' likes</div>';
-
-      
-    // Ajouter un événement de clic pour ouvrir la lightbox
     mediaElement.addEventListener('click', () => {
-      currentMediaIndex = index;
-      showLightbox();
+      mediaModel.currentMediaIndex = index;
+      mediaModel.showLightbox();
     });
-      
+
+    const caption = createElement('div', {}, ['caption']);
+    const title = createElement('div');
+    title.textContent = media.title;
+    const likes = createElement('div');
+    const heartIcon = createElement('span', {}, ['heart-icon']);
+    heartIcon.innerHTML = '&#x2764;';
+
+    const likeElement = createLikeElement(media);
+    likes.appendChild(heartIcon);
+    caption.appendChild(title);
+    caption.appendChild(likes);
     container.appendChild(mediaElement);
     container.appendChild(caption);
-    portfolioElement.appendChild(container);
-    });
-      
-    // Fermer la lightbox lorsque l'utilisateur clique dessus ou sur le bouton de fermeture
-    lightbox.addEventListener('click', (e) => {
-      if (e.target === lightbox || e.target.id === 'closeButton') {
-        hideLightbox();
-      }
-    });
+    container.appendChild(likeElement);
 
-    // Passe au média précédent lorsqu'on clique sur le bouton "précédent"
-    prevButton.addEventListener('click', () => {
-      currentMediaIndex = (currentMediaIndex + media.length - 1) % media.length;
-      showLightbox();
-    });
-
-    // Passe au média suivant lorsqu'on clique sur le bouton "suivant"
-    nextButton.addEventListener('click', () => {
-      currentMediaIndex = (currentMediaIndex + 1) % media.length;
-      showLightbox();
-    });
-
-    // Passe au média précédent ou suivant lorsqu'on appuie sur les touches gauche et droite du clavier
-    document.addEventListener('keydown', event => {
-      if (event.key === 'ArrowLeft') {
-        currentMediaIndex = (currentMediaIndex + media.length - 1) % media.length;
-        showLightbox();
-      } else if (event.key === 'ArrowRight') {
-        currentMediaIndex = (currentMediaIndex + 1) % media.length;
-        showLightbox();
-      }
-    });
-  })
-  .catch(error => console.error(error));
-
-       
+    portfolioElement.appendChild
+    (container);
+        });
+    }
+    updateMediaGallery();
+})
+.catch(error => console.error(error));
