@@ -198,3 +198,30 @@ form input {
 .caption div:nth-child(2):after{
     content : "\002661";
 }
+
+.subheader{
+    display: flex;
+    margin:20px 100px;
+    font-family: DM sans;
+    font-size: 18px;
+}
+
+.sort-select{
+    margin: 0 20px;
+    background-color:#901C1C;
+    color:white;
+    height: 50px;
+    width: 100px;
+    text-align: center;
+    border-radius: 5px;
+    border: none;
+}
+
+.sort-select option{
+    padding: 5px;
+    height: 50px;
+}
+.sort-select option:2nd-child{
+    border-top:1px white;
+    border-bottom:1px white;
+}
